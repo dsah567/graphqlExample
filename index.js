@@ -1,12 +1,18 @@
 import express from "express";
 import {graphql} from "graphql";
 import schema from "./schema.js";
-import { graphqlHTTP } from 'express-graphql'
+import { createHandler } from"graphql-http/lib/use/express";
+import dotenv from "dotenv";
+import {ruruHTML} from "ruru/server";
+dotenv.config({
+    path: './.env'
+})
 
-
+const port = process.env.PORT
 const app= express()
 app.get("/",(req,res)=>{
-    res.send("Hello world")
+    res.type("html")
+    res.end(ruruHTML({ endpoint: "/graphql" }))
 })
 
 let rootValue = {
@@ -15,10 +21,10 @@ let rootValue = {
     }
   }
 
-app.use('/graphql', graphqlHTTP({
+app.all('/graphql', createHandler({
     schema: schema,
     rootValue: rootValue,
-    graphiql: true
+   
 }))
 
-app.listen(8000,()=>console.log("App is listening at 8000"))
+app.listen(port,()=>console.log(`App is listening at ${port}`))
